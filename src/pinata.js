@@ -1,4 +1,3 @@
-// require('dotenv').config();
 const key = process.env.REACT_APP_PINATA_KEY;
 const secret = process.env.REACT_APP_PINATA_SECRET;
 
@@ -38,8 +37,10 @@ export const uploadFileToIPFS = async(file) => {
     let data = new FormData();
     data.append('file', file);
 
+    const fileName = file.name;
+
     const metadata = JSON.stringify({
-        name: 'testname',
+        name: fileName,
         keyvalues: {
             exampleKey: 'exampleValue'
         }

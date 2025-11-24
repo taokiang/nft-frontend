@@ -25,12 +25,12 @@ function Navbar() {
     ethereumButton.classList.remove("bg-blue-500");
     ethereumButton.classList.add("hover:bg-green-70");
     ethereumButton.classList.add("bg-green-500");
+    toggleConnect(true);
   }
 
   async function connectWebsite() {
     const chainId = await window.ethereum.request({ method: "eth_chainId" });
     if (chainId !== usedChainId) {
-      //alert('Incorrect network! Switch your metamask network to Rinkeby');
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: usedChainId }],
@@ -41,8 +41,47 @@ function Navbar() {
       .then(() => {
         updateButton();
         getAddress();
+        toggleConnect(true);
         window.location.replace(location.pathname);
       });
+  }
+  async function disConnetWebsite() {
+    updateAddress("0x");
+    const ethereumButton = document.querySelector(".enableEthereumButton");
+    if (ethereumButton) {
+      ethereumButton.textContent = "Connect Wallet";
+      ethereumButton.classList.remove("hover:bg-green-70");
+      ethereumButton.classList.remove("bg-green-500");
+      ethereumButton.classList.add("hover:bg-blue-70");
+      ethereumButton.classList.add("bg-blue-500");
+    }
+
+    // Try to call provider disconnect if available (WalletConnect or some providers)
+    try {
+      if (window.ethereum && typeof window.ethereum.disconnect === "function") {
+        await window.ethereum.disconnect();
+      } else if (
+        window.ethereum &&
+        window.ethereum._provider &&
+        typeof window.ethereum._provider.disconnect === "function"
+      ) {
+        await window.ethereum._provider.disconnect();
+      }
+    } catch (err) {
+      // Not all wallets support programmatic disconnect (MetaMask does not).
+      // It's fine — we already cleared the app state. Log for debugging.
+      console.warn("Wallet provider disconnect not available or failed:", err);
+    }
+
+    // Finalize app state
+    toggleConnect(false);
+
+    // Note: MetaMask currently doesn't provide a programmatic `disconnect` API.
+    // The best we can do in a browser dapp is clear local state and ask the
+    // user to disconnect via the wallet UI if they want to fully revoke access.
+    console.info(
+      "Disconnected in-app. If your wallet still shows a connection, please disconnect via your wallet (e.g. MetaMask) UI to revoke permissions."
+    );
   }
 
   useEffect(() => {
@@ -55,6 +94,16 @@ function Navbar() {
     }
 
     window.ethereum.on("accountsChanged", function (accounts) {
+      // If no accounts, treat as disconnected
+      if (!accounts || accounts.length === 0) {
+        disConnetWebsite();
+        return;
+      }
+      // Otherwise update address and UI
+      updateAddress(accounts[0]);
+      toggleConnect(true);
+      updateButton();
+      // refresh route so other components reload data for new account
       window.location.replace(location.pathname);
     });
   }, [location.pathname]);
@@ -106,13 +155,24 @@ function Navbar() {
                   <Link to="/profile">Profile</Link>
                 </li>
               )}
-              <li>
-                <button
-                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                  onClick={connectWebsite}
-                >
-                  {connected ? "Connected" : "Connect Wallet"}
-                </button>
+              <li>              
+                {
+                  connected ? (
+                    <button
+                      className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
+                      onClick={disConnetWebsite}
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <button
+                      className="ml-4 enableEthereumButton bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm"
+                      onClick={connectWebsite}
+                    >
+                      Connect
+                    </button>
+                  )
+                }
               </li>
             </ul>
           </li>
@@ -122,7 +182,7 @@ function Navbar() {
         {currAddress !== "0x"
           ? "Connected to"
           : "Not Connected. Please login to view NFTs"}{" "}
-        {currAddress !== "0x" ? currAddress.substring(0, 15) + "..." : ""}
+        {currAddress !== "0x" ? currAddress.slice(0, 6) + "..." + currAddress.slice(-4) : ""}
       </div>
     </div>
   );
