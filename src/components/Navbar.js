@@ -126,7 +126,7 @@ function Navbar() {
               </div>
             </Link>
           </li>
-          <li className="w-2/6">
+          <li className="">
             <ul className="lg:flex justify-between font-bold mr-10 text-lg">
               {location.pathname === "/" ? (
                 <li className="border-b-2 hover:pb-0 p-2">
