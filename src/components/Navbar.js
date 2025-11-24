@@ -46,6 +46,7 @@ function Navbar() {
       });
   }
   async function disConnetWebsite() {
+    // MetaMask没有提供直接用于断开 MetaMask 连接的 API
     updateAddress("0x");
     const ethereumButton = document.querySelector(".enableEthereumButton");
     if (ethereumButton) {
@@ -56,37 +57,14 @@ function Navbar() {
       ethereumButton.classList.add("bg-blue-500");
     }
 
-    // Try to call provider disconnect if available (WalletConnect or some providers)
-    try {
-      if (window.ethereum && typeof window.ethereum.disconnect === "function") {
-        await window.ethereum.disconnect();
-      } else if (
-        window.ethereum &&
-        window.ethereum._provider &&
-        typeof window.ethereum._provider.disconnect === "function"
-      ) {
-        await window.ethereum._provider.disconnect();
-      }
-    } catch (err) {
-      // Not all wallets support programmatic disconnect (MetaMask does not).
-      // It's fine — we already cleared the app state. Log for debugging.
-      console.warn("Wallet provider disconnect not available or failed:", err);
-    }
-
     // Finalize app state
     toggleConnect(false);
-
-    // Note: MetaMask currently doesn't provide a programmatic `disconnect` API.
-    // The best we can do in a browser dapp is clear local state and ask the
-    // user to disconnect via the wallet UI if they want to fully revoke access.
-    console.info(
-      "Disconnected in-app. If your wallet still shows a connection, please disconnect via your wallet (e.g. MetaMask) UI to revoke permissions."
-    );
   }
 
   useEffect(() => {
     if (!window.ethereum) return;
     let val = window.ethereum.isConnected();
+    console.log("Ethereum connected:", val);
     if (val) {
       getAddress();
       toggleConnect(val);
@@ -156,23 +134,12 @@ function Navbar() {
                 </li>
               )}
               <li>              
-                {
-                  connected ? (
-                    <button
-                      className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
-                      onClick={disConnetWebsite}
-                    >
-                      Disconnect
-                    </button>
-                  ) : (
-                    <button
-                      className="ml-4 enableEthereumButton bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm"
-                      onClick={connectWebsite}
-                    >
-                      Connect
-                    </button>
-                  )
-                }
+                <button
+                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                  onClick={connectWebsite}
+                >
+                  {connected ? "Connected" : "Connect Wallet"}
+                </button>
               </li>
             </ul>
           </li>
