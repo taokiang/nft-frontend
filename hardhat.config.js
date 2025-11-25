@@ -3,16 +3,16 @@ require("@nomiclabs/hardhat-ethers");
 require("solidity-coverage");
 require("dotenv").config();
 
-const fs = require("fs");
+// const fs = require("fs");
 // const infuraId = fs.readFileSync(".infuraid").toString().trim() || "";
 
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+// task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+//   const accounts = await hre.ethers.getSigners();
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+//   for (const account of accounts) {
+//     console.log(account.address);
+//   }
+// });
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -20,10 +20,10 @@ module.exports = {
     hardhat: {
       chainId: 31337, //默认就是31337
     },
-    // sepolia: {
-    //   url: "https://eth-sepolia.g.alchemy.com/v2/I3eHFhWUQaZueOZP5BPt3jdFLebK9aEe",
-    //   accounts: [process.env.PRIVATE_KEY],
-    // },
+    sepolia: {
+      url: process.env.SEPOLIA_RPC,
+      accounts: [process.env.PRIVATE_KEY],
+    },
     // mumbai: {
     //   url: `https://polygon-mumbai.g.alchemy.com/v2/nAhiCHKvZkhkp4A7PkkCIBON0-BXW26d`,
     //   //accounts: [process.env.privateKey]

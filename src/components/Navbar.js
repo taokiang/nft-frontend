@@ -135,7 +135,7 @@ function Navbar() {
               )}
               <li>              
                 <button
-                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm ml-4"
                   onClick={connectWebsite}
                 >
                   {connected ? "Connected" : "Connect Wallet"}
