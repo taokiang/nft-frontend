@@ -16,28 +16,6 @@
 - NFT 卖家可以查看自己的 NFT，并售卖 NFT
 - NFT 市场管理员可以修改策展价
 
-## 项目部署
-
-### 本地部署和环境配置
-
-#### 项目环境准备
-
-1.  nodejs,hardhat
-2.  [创建 pinata 账号](https://app.pinata.cloud/)
-    （创建 pinata 账号使用 ipfs 服务用于上传 NFT 图片）
-3.  [创建 apikey](https://app.pinata.cloud/developers/api-keys)
-    ![apikey](./screenshot/1.png)
-
-    选择下面两个服务，创建 apikey
-    ![create apikey](./screenshot/2.png)
-
-    保存你的 JWT（项目用）、apikey、api_secret
-    ![jwt](./screenshot/3.png)
-
-    把 apiKey,apiSecret 写到.env 中，形如
-    REACT_APP_PINATA_KEY=xxxx
-    REACT_APP_PINATA_SECRET=xxxx
-
 #### 项目配置
 
 1. 依赖安装 `npm install`
