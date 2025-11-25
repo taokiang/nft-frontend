@@ -2,25 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: 'Open Sans',sans-serif;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: url('./bg.png');
-  background-size: 200% 180%;
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-delay: 0s;
-  animation-iteration-count: infinite;
-  animation-direction: normal;
-  animation-fill-mode: none;
-  animation-play-state: running;
-  animation-name: gradientTransform;
-  background-repeat: no-repeat;
+  background: linear-gradient(135deg, #0f172a 0%, #1a1f35 50%, #0a0f1f 100%);
+  background-attachment: fixed;
+  color: #ffffff;
+  overflow-x: hidden;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a855f7 0%, #7c3aed 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d946ef 0%, #a855f7 100%);
+}
+
+/* Global animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button styles */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* Link styles */
+a {
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #a855f7;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);
 }
