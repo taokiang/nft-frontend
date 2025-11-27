@@ -3,21 +3,15 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
-const usedChainId = "0x7a69"; // localhost
+// const usedChainId = "0x7a69"; // localhost 31337
+const usedChainId = "0xaa36a7"; // sepolia 11155111
+
 
 function Navbar() {
   const [connected, toggleConnect] = useState(false);
   const location = useLocation();
   const [currAddress, updateAddress] = useState("0x");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  async function getAddress() {
-    const ethers = require("ethers");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const addr = await signer.getAddress();
-    updateAddress(addr);
-  }
 
   function updateButton() {
     const ethereumButton = document.querySelector(".enableEthereumButton");
@@ -30,21 +24,43 @@ function Navbar() {
   }
 
   async function connectWebsite() {
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-    if (chainId !== usedChainId) {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: usedChainId }],
+    if (connected) return;
+    
+    try {
+      // First, ensure we're on the correct chain
+      const chainId = await window.ethereum.request({ method: "eth_chainId" });
+      if (chainId !== usedChainId) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: usedChainId }],
+          });
+        } catch (switchError) {
+          // Chain doesn't exist, user needs to add it manually
+          console.error("Cannot switch to chain, may need to add it manually:", switchError);
+        }
+      }
+
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
       });
-    }
-    await window.ethereum
-      .request({ method: "eth_requestAccounts" })
-      .then(() => {
+
+      if (accounts && accounts.length > 0) {
+        updateAddress(accounts[0]);
         updateButton();
-        getAddress();
         toggleConnect(true);
         window.location.replace(location.pathname);
-      });
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      if (error.code === -32602) {
+        alert("Invalid chain ID. Please add Sepolia network to MetaMask manually.");
+      } else if (error.code !== -32603) {
+        // -32603 is user rejection, no need to alert
+        alert("Failed to connect wallet. Please try again.");
+      }
+    }
   }
 
   async function disConnetWebsite() {
@@ -59,16 +75,29 @@ function Navbar() {
   }
 
   useEffect(() => {
-    if (!window.ethereum) return;
-    let val = window.ethereum.isConnected();
-    console.log("Ethereum connected:", val);
-    if (val) {
-      getAddress();
-      toggleConnect(val);
-      updateButton();
+    if (!window.ethereum) {
+      console.warn("MetaMask not installed");
+      return;
     }
 
-    window.ethereum.on("accountsChanged", function (accounts) {
+    // Check if accounts are already authorized
+    const checkAndGetAccounts = async () => {
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts && accounts.length > 0) {
+          updateAddress(accounts[0]);
+          toggleConnect(true);
+          updateButton();
+        }
+      } catch (error) {
+        console.warn("Could not fetch accounts:", error.message);
+      }
+    };
+
+    checkAndGetAccounts();
+
+    // Listen for account changes
+    const handleAccountsChanged = (accounts) => {
       if (!accounts || accounts.length === 0) {
         disConnetWebsite();
         return;
@@ -77,7 +106,13 @@ function Navbar() {
       toggleConnect(true);
       updateButton();
       window.location.replace(location.pathname);
-    });
+    };
+
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    };
   }, [location.pathname]);
 
   const isActive = (path) => location.pathname === path;
